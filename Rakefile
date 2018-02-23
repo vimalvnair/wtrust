@@ -26,6 +26,7 @@ namespace :wtrust do
         Wtrust.create(:total_gain => resp_data['TotalGain'], :total_investment_val => resp_data["TotalInvestmentVal"], :total_current_val => resp_data["TotalCurrentVal"], :day_gain => resp_data["DayGain"], :day_gain_percent => resp_data["DayGainPerc"], :xirr => resp_data["XIRR"])
       end
     rescue Exception => e
+      `curl --header 'Access-Token: #{ENV['PUSH_TOKEN']}' --header 'Content-Type: application/json' --data-binary '{"body":"#{e.message}","title":"Wtrust Exception","type":"note", "channel_tag": "test_push"}' --request POST https://api.pushbullet.com/v2/pushes`
       puts "Exception #{e.message}"
     end
   end
