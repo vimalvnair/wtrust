@@ -23,8 +23,11 @@ namespace :wtrust do
       wtrust = Wtrust.where(:total_gain => resp_data['TotalGain'], :day_gain => resp_data["DayGain"]).first
 
       if wtrust.nil? || (wtrust.created_at.strftime("%Y-%m-%d") != Time.now.utc.strftime("%Y-%m-%d"))
-        Wtrust.create(:total_gain => resp_data['TotalGain'], :total_investment_val => resp_data["TotalInvestmentVal"], :total_current_val => resp_data["TotalCurrentVal"], :day_gain => resp_data["DayGain"], :day_gain_percent => resp_data["DayGainPerc"], :xirr => resp_data["XIRR"])
+        new_wtrust = Wtrust.create(:total_gain => resp_data['TotalGain'], :total_investment_val => resp_data["TotalInvestmentVal"], :total_current_val => resp_data["TotalCurrentVal"], :day_gain => resp_data["DayGain"], :day_gain_percent => resp_data["DayGainPerc"], :xirr => resp_data["XIRR"])
+
+        `curl --header 'Access-Token: #{ENV['PUSH_TOKEN']}' --header 'Content-Type: application/json' --data-binary '{"body":"#{new_wtrust.attributes.map{|k,v| [k, v.to_s] }.join("#")}","title":"Wtrust portfolio synced","type":"note", "channel_tag": "test_push"}' --request POST https://api.pushbullet.com/v2/pushes`
       end
+
     rescue Exception => e
       `curl --header 'Access-Token: #{ENV['PUSH_TOKEN']}' --header 'Content-Type: application/json' --data-binary '{"body":"#{e.message}","title":"Wtrust Exception","type":"note", "channel_tag": "test_push"}' --request POST https://api.pushbullet.com/v2/pushes`
       puts "Exception #{e.message}"
