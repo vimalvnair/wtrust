@@ -20,7 +20,7 @@ namespace :wtrust do
       raise Exception.new("Wrong portfolio response") unless parsed_body['WAPIResponseStatus'] == "OK"
       resp_data = parsed_body['WAPIResponse']['ResponseData']
 
-      wtrust = Wtrust.where(:total_gain => resp_data['TotalGain'], :day_gain => resp_data["DayGain"]).first
+      wtrust = Wtrust.where(:total_gain => resp_data['TotalGain'], :day_gain => resp_data["DayGain"]).last
 
       if wtrust.nil? || (wtrust.created_at.strftime("%Y-%m-%d") != Time.now.utc.strftime("%Y-%m-%d"))
         new_wtrust = Wtrust.create(:total_gain => resp_data['TotalGain'], :total_investment_val => resp_data["TotalInvestmentVal"], :total_current_val => resp_data["TotalCurrentVal"], :day_gain => resp_data["DayGain"], :day_gain_percent => resp_data["DayGainPerc"], :xirr => resp_data["XIRR"])
